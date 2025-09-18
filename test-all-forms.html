@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Testing - MRD Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #FFD700;
+        }
+        .test-form {
+            margin: 20px 0;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #FFD700;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #333;
+            color: #fff;
+        }
+        button {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        .info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 MRD Website Form Testing Suite</h1>
+    <p>This page tests all forms across the website to ensure they communicate with the Google Sheet properly.</p>
+
+    <div class="test-section">
+        <h2>📊 System Status</h2>
+        <div id="system-status" class="status info">Checking system status...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🏠 Homepage Contact Form Test</h2>
+        <div class="test-form">
+            <form id="homepage-form">
+                <div class="form-group">
+                    <label for="homepage-email">Email Address *</label>
+                    <input type="email" id="homepage-email" name="email" required value="test@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="homepage-name">Full Name</label>
+                    <input type="text" id="homepage-name" name="name" value="Test User">
+                </div>
+                <div class="form-group">
+                    <label for="homepage-phone">Phone Number</label>
+                    <input type="tel" id="homepage-phone" name="phone" value="123-456-7890">
+                </div>
+                <div class="form-group">
+                    <label for="homepage-message">Message</label>
+                    <textarea id="homepage-message" name="message">Test message from homepage form</textarea>
+                </div>
+                <button type="submit">Test Homepage Form</button>
+            </form>
+            <div id="homepage-status" class="status info">Ready to test</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📚 Courses Page Form Test</h2>
+        <div class="test-form">
+            <form id="courses-form">
+                <div class="form-group">
+                    <label for="courses-email">Email Address *</label>
+                    <input type="email" id="courses-email" name="email" required value="test@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="courses-name">Full Name</label>
+                    <input type="text" id="courses-name" name="name" value="Test User">
+                </div>
+                <div class="form-group">
+                    <label for="courses-phone">Phone Number</label>
+                    <input type="tel" id="courses-phone" name="phone" value="123-456-7890">
+                </div>
+                <div class="form-group">
+                    <label for="courses-course">Course Interest</label>
+                    <select id="courses-course" name="course_interest">
+                        <option value="AI Trading">AI Trading</option>
+                        <option value="Consulting Services">Consulting Services</option>
+                        <option value="Partnership">Partnership</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="courses-message">Message</label>
+                    <textarea id="courses-message" name="message">Test message from courses form</textarea>
+                </div>
+                <button type="submit">Test Courses Form</button>
+            </form>
+            <div id="courses-status" class="status info">Ready to test</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📞 Contact Page Form Test</h2>
+        <div class="test-form">
+            <form id="contact-form">
+                <div class="form-group">
+                    <label for="contact-email">Email Address *</label>
+                    <input type="email" id="contact-email" name="email" required value="test@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="contact-name">Full Name</label>
+                    <input type="text" id="contact-name" name="name" value="Test User">
+                </div>
+                <div class="form-group">
+                    <label for="contact-phone">Phone Number</label>
+                    <input type="tel" id="contact-phone" name="phone" value="123-456-7890">
+                </div>
+                <div class="form-group">
+                    <label for="contact-service">Service Interest</label>
+                    <select id="contact-service" name="service_interest">
+                        <option value="AI Trading">AI Trading</option>
+                        <option value="Consulting Services">Consulting Services</option>
+                        <option value="Partnership">Partnership</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contact-message">Message</label>
+                    <textarea id="contact-message" name="message">Test message from contact form</textarea>
+                </div>
+                <button type="submit">Test Contact Form</button>
+            </form>
+            <div id="contact-status" class="status info">Ready to test</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Join Page Form Test</h2>
+        <div class="test-form">
+            <form id="join-form">
+                <div class="form-group">
+                    <label for="join-email">Email Address *</label>
+                    <input type="email" id="join-email" name="email" required value="test@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="join-name">Full Name</label>
+                    <input type="text" id="join-name" name="name" value="Test User">
+                </div>
+                <div class="form-group">
+                    <label for="join-phone">Phone Number</label>
+                    <input type="tel" id="join-phone" name="phone" value="123-456-7890">
+                </div>
+                <div class="form-group">
+                    <label for="join-experience">Experience Level</label>
+                    <select id="join-experience" name="experience_level">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="join-goals">Goals</label>
+                    <textarea id="join-goals" name="goals">Test goals from join form</textarea>
+                </div>
+                <button type="submit">Test Join Form</button>
+            </form>
+            <div id="join-status" class="status info">Ready to test</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📈 Analytics Test</h2>
+        <button onclick="testAnalytics()">Test Analytics Tracking</button>
+        <div id="analytics-status" class="status info">Ready to test</div>
+    </div>
+
+    <!-- MRD Brain System -->
+    <script src="mrd-brain-system.js"></script>
+    
+    <script>
+        // Initialize MRD Brain System
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof MRDBrainSystem !== 'undefined') {
+                window.MRDBrain = new MRDBrainSystem();
+                document.getElementById('system-status').innerHTML = '✅ MRD Brain System initialized successfully';
+                document.getElementById('system-status').className = 'status success';
+            } else {
+                document.getElementById('system-status').innerHTML = '❌ MRD Brain System failed to load';
+                document.getElementById('system-status').className = 'status error';
+            }
+
+            // Setup form handlers
+            setupFormHandler('homepage-form', 'homepage-status', 'home_page');
+            setupFormHandler('courses-form', 'courses-status', 'courses_page');
+            setupFormHandler('contact-form', 'contact-status', 'contact_page');
+            setupFormHandler('join-form', 'join-status', 'join_page');
+        });
+
+        function setupFormHandler(formId, statusId, pageSource) {
+            const form = document.getElementById(formId);
+            const status = document.getElementById(statusId);
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Submitting...';
+                submitButton.disabled = true;
+                
+                try {
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+                    
+                    if (window.MRDBrain && typeof window.MRDBrain.saveFormSubmission === 'function') {
+                        await window.MRDBrain.saveFormSubmission({
+                            ...data,
+                            form_id: formId,
+                            page_source: pageSource
+                        });
+                        status.innerHTML = '✅ Form submitted successfully to Google Sheet!';
+                        status.className = 'status success';
+                    } else {
+                        status.innerHTML = '❌ MRD Brain system not available';
+                        status.className = 'status error';
+                    }
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    status.innerHTML = '❌ Form submission failed: ' + error.message;
+                    status.className = 'status error';
+                } finally {
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                }
+            });
+        }
+
+        function testAnalytics() {
+            const status = document.getElementById('analytics-status');
+            
+            if (window.MRDBrain && typeof window.MRDBrain.trackEvent === 'function') {
+                window.MRDBrain.trackEvent('test_event', {
+                    test_data: 'Analytics test from form testing page',
+                    timestamp: new Date().toISOString()
+                });
+                status.innerHTML = '✅ Analytics event tracked successfully!';
+                status.className = 'status success';
+            } else {
+                status.innerHTML = '❌ Analytics tracking not available';
+                status.className = 'status error';
+            }
+        }
+    </script>
+</body>
+</html>
