@@ -7,6 +7,16 @@
   color: white;
 }
 
+@layer components {
+  .glass-card {
+    background-color: rgba(18, 18, 18, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(201, 166, 70, 0.15);
+    border-radius: 0.75rem;
+    /* rounded-xl */
+  }
+}
+
 /* --- GLOBAL SCROLLBAR RESET --- */
 /* This ensures even the browser's main scrollbar matches the theme */
 ::-webkit-scrollbar {
@@ -138,7 +148,39 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 2px;
-    /* Thinner for mobile */
+    display: none;
+    /* Hide scrollbars on mobile */
+    width: 0px;
   }
+}
+
+/* --- ANIMATION UTILITIES --- */
+@keyframes glow-lg {
+  50% {
+    box-shadow: 0 0 20px rgba(201, 166, 70, 0.5);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(201, 166, 70, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 15px rgba(201, 166, 70, 0.6);
+  }
+}
+
+.animate-glow-lg {
+  animation: glow-lg 3s infinite;
+}
+
+.shadow-neon-xl {
+  box-shadow: 0 0 25px rgba(201, 166, 70, 0.4);
+}
+
+.shadow-emerald-glow {
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
 }

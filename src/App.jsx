@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useResponsive } from './hooks/useResponsive';
 
 import CalendarWeekView from './components/CalendarWeekView';
 import CalendarDayView from './components/CalendarDayView';
@@ -609,9 +611,11 @@ const EventDetailModal = ({ event, onClose, matter, setActiveTab }) => {
     );
 };
 
-// --- 6-PANEL PERSONAL HUB COMPONENT (REFINED V4 - BALANCED LAYOUT) ---
+// --- 6-PANEL PERSONAL HUB COMPONENT (ANIMATED & RESPONSIVE) ---
 
 const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, timerActive, toggleTimer, timerSeconds, setTimerMatter, timerMatter, toggleTaskCompletion, onTaskClick, onAlertClick, onMatterClick, onEventClick }) => {
+    const { isMobile, isDesktop } = useResponsive();
+
     // Sort tasks
     const myPriorities = useMemo(() => {
         return tasks
@@ -620,14 +624,11 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                 if (a.priority === 'Urgent' && b.priority !== 'Urgent') return -1;
                 if (a.priority !== 'Urgent' && b.priority === 'Urgent') return 1;
                 return new Date(a.dueDate) - new Date(b.dueDate);
-            }).slice(0, 5); // Show top 5 tasks only
+            }).slice(0, 5);
     }, [tasks]);
 
     // AI Insight Handlers
-    const handleReviewFile = () => {
-        setActiveTab('Documents');
-    };
-
+    const handleReviewFile = () => setActiveTab('Documents');
     const handleDismissAI = () => {
         const bubble = document.getElementById('ai-insight-bubble');
         if (bubble) bubble.style.display = 'none';
@@ -635,97 +636,133 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
 
     const urgentCount = myPriorities.filter(t => t.priority === 'Urgent' || t.priority === 'High').length;
     const now = new Date();
-
-    // Simple greeting
     const getGreeting = () => 'Hello';
 
+    // Animation Variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: isMobile ? 0.05 : 0.1,
+                delayChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: isMobile ? 10 : 20 },
+        show: {
+            opacity: 1,
+            y: 0,
+            transition: { type: isMobile ? "tween" : "spring", stiffness: 50 }
+        }
+    };
+
     return (
-        <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-700 pb-20">
+        <motion.div
+            className="max-w-7xl mx-auto space-y-6 pb-20 md:pb-20 pb-32"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+        >
 
             {/* 1. Welcome Banner */}
-            <GlassCard className="p-0 overflow-hidden relative bg-gradient-to-r from-[#1a1a1a] via-[#121212] to-black border-l-4 border-l-[#c9a646]">
-                <div className="flex flex-col md:flex-row items-center justify-between p-8">
-                    <div className="flex items-center gap-8">
-                        <div className="relative">
-                            <div className="w-20 h-20 rounded-full border-2 border-[#c9a646] flex items-center justify-center bg-black/80 text-white font-black text-2xl shadow-lg shadow-[#c9a646]/30">
-                                {ACTIVE_STAFF.initials}
+            <motion.div variants={itemVariants}>
+                <GlassCard className="p-0 overflow-hidden relative bg-gradient-to-r from-[#1a1a1a] via-[#121212] to-black border-l-4 border-l-[#c9a646]">
+                    <div className="flex flex-col md:flex-row items-center justify-between p-6 md:p-8">
+                        <div className="flex items-center gap-4 md:gap-8 w-full md:w-auto">
+                            <motion.div
+                                className="relative shrink-0"
+                                whileHover={isDesktop ? { scale: 1.1, rotate: 5 } : {}}
+                            >
+                                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-[#c9a646] flex items-center justify-center bg-black/80 text-white font-black text-xl md:text-2xl shadow-lg shadow-[#c9a646]/30">
+                                    {ACTIVE_STAFF.initials}
+                                </div>
+                                <div className="absolute bottom-1 right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full border-4 border-[#121212] animate-pulse"></div>
+                            </motion.div>
+                            <div className="min-w-0 flex-1">
+                                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-1 md:mb-2 truncate">Welcome, {ACTIVE_STAFF.name.split(' ')[0]}</h2>
+                                <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+                                    <span className="bg-[#c9a646]/20 px-2 md:px-3 py-1 rounded text-[9px] md:text-[10px] uppercase font-black text-[#c9a646] tracking-widest">{ACTIVE_STAFF.role}</span>
+                                    <span className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest truncate">{now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                                </div>
                             </div>
-                            <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 rounded-full border-4 border-[#121212]"></div>
                         </div>
-                        <div>
-                            <h2 className="text-3xl font-black text-white tracking-tight mb-2">Welcome, {ACTIVE_STAFF.name.split(' ')[0]}</h2>
-                            <div className="flex items-center gap-4">
-                                <span className="bg-[#c9a646]/20 px-3 py-1 rounded text-[10px] uppercase font-black text-[#c9a646] tracking-widest">{ACTIVE_STAFF.role}</span>
-                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* AI Insight Bubble */}
-                    <div id="ai-insight-bubble" className="hidden md:block flex-1 mx-12 animate-in slide-in-from-right-4 duration-1000">
-                        <div className="bg-[#1a1a1a] border border-white/5 p-4 rounded-xl relative">
-                            <div className="absolute -left-2 top-6 w-4 h-4 bg-[#1a1a1a] transform rotate-45 border-l border-b border-white/5"></div>
-                            <div className="flex items-start gap-3">
-                                <Sparkles className="w-5 h-5 text-[#c9a646] mt-1 shrink-0 animate-pulse" />
-                                <div>
-                                    <p className="text-sm font-bold text-gray-200 leading-snug">
-                                        {getGreeting()}, {ACTIVE_STAFF.initials}. You have <span className="text-white border-b-2 border-red-500">{urgentCount} urgent deadlines</span> approaching this week. I recommend reviewing the <button onClick={handleReviewFile} className="text-[#f7d774] hover:underline font-bold">TechSolutions Merger</button> file by 2 PM.
-                                    </p>
-                                    <div className="flex gap-4 mt-2">
-                                        <button onClick={handleReviewFile} className="text-[10px] font-black uppercase text-[#c9a646] hover:text-white transition-colors flex items-center gap-1 group">
-                                            Review File <ChevronRight size={10} className="group-hover:translate-x-1 transition-transform" />
-                                        </button>
-                                        <button onClick={handleDismissAI} className="text-[10px] font-black uppercase text-gray-600 hover:text-gray-400 transition-colors">Dismiss</button>
+                        {/* AI Insight Bubble */}
+                        <div id="ai-insight-bubble" className="hidden md:block flex-1 mx-12">
+                            <div className="bg-[#1a1a1a] border border-white/5 p-4 rounded-xl relative">
+                                <div className="absolute -left-2 top-6 w-4 h-4 bg-[#1a1a1a] transform rotate-45 border-l border-b border-white/5"></div>
+                                <div className="flex items-start gap-3">
+                                    <Sparkles className="w-5 h-5 text-[#c9a646] mt-1 shrink-0 animate-pulse" />
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-200 leading-snug">
+                                            {getGreeting()}, {ACTIVE_STAFF.initials}. You have <span className="text-white border-b-2 border-red-500">{urgentCount} urgent deadlines</span> approaching.
+                                        </p>
+                                        <div className="flex gap-4 mt-2">
+                                            <motion.button
+                                                onClick={handleReviewFile}
+                                                whileHover={{ x: 5 }}
+                                                className="text-[10px] font-black uppercase text-[#c9a646] hover:text-white transition-colors flex items-center gap-1"
+                                            >
+                                                Review File <ChevronRight size={10} />
+                                            </motion.button>
+                                            <button onClick={handleDismissAI} className="text-[10px] font-black uppercase text-gray-600 hover:text-gray-400 transition-colors">Dismiss</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </GlassCard>
+                </GlassCard>
+            </motion.div>
 
             {/* 2. Daily Pulse Section */}
-            <GlassCard className="border-l-4 border-l-[#c9a646]">
-                <div className="flex items-center gap-2 mb-6">
-                    <Zap className="w-5 h-5 text-[#c9a646]" />
-                    <h3 className="text-[#f7d774] font-black uppercase text-sm tracking-widest">Daily Pulse</h3>
-                </div>
-                <div className="grid grid-cols-4 gap-4">
-                    <div className="text-center">
-                        <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Utilization</p>
-                        <p className="text-3xl font-black text-white mb-1">32%</p>
-                        <TrendingUp className="text-blue-500 w-5 h-5 mx-auto opacity-50" />
+            <motion.div variants={itemVariants}>
+                <GlassCard className="border-l-4 border-l-[#c9a646]">
+                    <div className="flex items-center gap-2 mb-4 md:mb-6">
+                        <Zap className="w-5 h-5 text-[#c9a646]" />
+                        <h3 className="text-[#f7d774] font-black uppercase text-sm tracking-widest">Daily Pulse</h3>
                     </div>
-                    <div className="text-center">
-                        <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Time Logged</p>
-                        <p className="text-3xl font-black text-white mb-1">{pulse.timeToday}</p>
-                        <Clock className="text-purple-500 w-5 h-5 mx-auto opacity-50" />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-4">
+                        {[
+                            { label: 'Utilization', val: '32%', icon: TrendingUp, color: 'white', iconColor: 'text-blue-500' },
+                            { label: 'Time Logged', val: pulse.timeToday, icon: Clock, color: 'white', iconColor: 'text-purple-500' },
+                            { label: 'Billed', val: pulse.billedToday, icon: DollarSign, color: '#f7d774', iconColor: 'text-[#c9a646]' },
+                            { label: 'Staff Active', val: pulse.activeTimekeepers, icon: Users, color: 'white', iconColor: 'text-blue-500' }
+                        ].map((stat, i) => (
+                            <motion.div
+                                key={i}
+                                className="text-center p-2 md:p-0 bg-white/5 md:bg-transparent rounded-lg md:rounded-none"
+                                whileHover={isDesktop ? { scale: 1.05, y: -5 } : {}}
+                            >
+                                <p className="text-[9px] md:text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">{stat.label}</p>
+                                <p className={`text-2xl md:text-3xl font-black mb-1`} style={{ color: stat.color }}>{stat.val}</p>
+                                <stat.icon className={`${stat.iconColor} w-4 h-4 md:w-5 md:h-5 mx-auto opacity-50`} />
+                            </motion.div>
+                        ))}
                     </div>
-                    <div className="text-center">
-                        <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Billed</p>
-                        <p className="text-3xl font-black text-[#f7d774] mb-1">{pulse.billedToday}</p>
-                        <DollarSign className="text-[#c9a646] w-5 h-5 mx-auto opacity-50" />
-                    </div>
-                    <div className="text-center">
-                        <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Staff Active</p>
-                        <p className="text-3xl font-black text-white mb-1">{pulse.activeTimekeepers}</p>
-                        <Users className="text-blue-500 w-5 h-5 mx-auto opacity-50" />
-                    </div>
-                </div>
-            </GlassCard>
+                </GlassCard>
+            </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* LEFT COLUMN - Priority Tasks & Critical Alerts */}
-                <div className="space-y-6">
-                    <GlassCard className="border-t-4 border-t-[#c9a646] flex flex-col max-h-[400px]">
+                {/* LEFT COLUMN */}
+                <motion.div className="space-y-6" variants={itemVariants}>
+                    <GlassCard className="border-t-4 border-t-[#c9a646] flex flex-col max-h-[500px] md:max-h-[400px]">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-[#f7d774] font-black uppercase text-xs tracking-widest flex items-center gap-2">
                                 <CheckSquare className="w-4 h-4" /> Priority Stack
                             </h3>
-                            <button onClick={() => openQuickAdd('task')} className="text-[10px] bg-white/10 hover:bg-[#c9a646] hover:text-black px-3 py-1.5 rounded transition-colors font-bold flex items-center gap-2">
-                                <Plus size={12} /> New Task
-                            </button>
+                            <motion.button
+                                onClick={() => openQuickAdd('task')}
+                                whileTap={{ scale: 0.95 }}
+                                whileHover={isDesktop ? { scale: 1.05 } : {}}
+                                className="text-[10px] bg-white/10 hover:bg-[#c9a646] hover:text-black px-3 py-2 md:py-1.5 rounded-lg md:rounded transition-colors font-bold flex items-center gap-2 touch-manipulation"
+                            >
+                                <Plus size={14} /> <span className="hidden md:inline">New Task</span><span className="md:hidden">Add</span>
+                            </motion.button>
                         </div>
                         <div className="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                             {myPriorities.length === 0 ? (
@@ -734,11 +771,19 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                                     <p className="text-xs uppercase font-bold tracking-widest text-gray-500">No Priority Items</p>
                                 </div>
                             ) : myPriorities.map((t, i) => (
-                                <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#c9a646]/50 transition-all group">
-                                    <button onClick={() => toggleTaskCompletion(t.id)} className="text-gray-600 hover:text-green-500 transition-colors">
-                                        <Circle size={20} strokeWidth={3} />
-                                    </button>
-                                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onTaskClick(t)}>
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    whileHover={isDesktop ? { scale: 1.02, x: 5 } : {}}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#c9a646]/50 transition-colors group cursor-pointer"
+                                >
+                                    <div onClick={() => toggleTaskCompletion(t.id)} className="text-gray-600 hover:text-green-500 transition-colors p-1">
+                                        <Circle size={24} strokeWidth={2} />
+                                    </div>
+                                    <div className="flex-1 min-w-0" onClick={() => onTaskClick(t)}>
                                         <div className="flex justify-between items-start mb-1">
                                             <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${t.priority === 'Urgent' ? 'bg-red-500/20 text-red-500' : 'bg-[#c9a646]/20 text-[#c9a646]'}`}>{t.priority}</span>
                                             <span className="text-[10px] font-black uppercase text-gray-500">{t.dueDate}</span>
@@ -746,7 +791,7 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                                         <p className="text-sm font-bold text-white group-hover:text-[#f7d774] truncate">{t.title}</p>
                                         <p className="text-[10px] text-gray-500 truncate font-mono mt-1">{matters.find(m => m.id === t.matterId)?.name || 'General Task'}</p>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     </GlassCard>
@@ -754,45 +799,33 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                     {/* Critical Alerts */}
                     <GlassCard className="border-t-4 border-t-red-500 bg-red-500/5">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-red-400 font-bold uppercase text-xs tracking-widest flex items-center gap-2"><AlertCircle className="w-4 h-4" /> Critical Alerts</h3>
+                            <h3 className="text-red-400 font-bold uppercase text-xs tracking-widest flex items-center gap-2"><AlertCircle className="w-4 h-4 animate-pulse" /> Critical Alerts</h3>
                             <span className="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded font-black">3 Active</span>
                         </div>
                         <div className="space-y-2">
-                            {/* Overdue Invoice */}
-                            {MOCK_DATA.billingAlerts.map((a, i) => (
-                                <div key={`billing-${i}`} onClick={() => onAlertClick(a)} className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-red-500/20 hover:bg-red-500/10 cursor-pointer transition-colors group">
-                                    <div className="flex items-center gap-2">
-                                        <DollarSign size={14} className="text-red-500" />
+                            {/* Static Alerts Refactored to Loop for cleaner code */}
+                            {[
+                                { icon: DollarSign, color: 'text-red-500', title: MOCK_DATA.billingAlerts[0].client, sub: `${MOCK_DATA.billingAlerts[0].daysOverdue} Days Overdue`, val: `R ${MOCK_DATA.billingAlerts[0].amount.toLocaleString()}`, action: () => onAlertClick(MOCK_DATA.billingAlerts[0]) },
+                                { icon: AlertTriangle, color: 'text-orange-500', title: 'Court Filing Deadline', sub: 'Due Tomorrow', action: () => setActiveTab('Tasks') },
+                                { icon: ShieldAlert, color: 'text-yellow-500', title: 'FICA Verification Pending', sub: '2 Clients', action: () => setActiveTab('Clients') }
+                            ].map((alert, i) => (
+                                <motion.div
+                                    key={`alert-${i}`}
+                                    onClick={alert.action}
+                                    whileHover={isDesktop ? { x: 5, backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {}}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="flex items-center justify-between p-3 md:p-3 p-4 rounded-xl bg-black/40 border border-white/5 cursor-pointer transition-colors group"
+                                >
+                                    <div className="flex items-center gap-3 md:gap-2">
+                                        <alert.icon size={16} className={`${alert.color} shrink-0`} />
                                         <div>
-                                            <p className="text-xs font-bold text-white group-hover:text-red-400 transition-colors">{a.client}</p>
-                                            <span className="text-[9px] text-red-400 font-bold uppercase">{a.daysOverdue} Days Overdue</span>
+                                            <p className={`text-xs md:text-xs text-sm font-bold text-white group-hover:${alert.color.replace('text-', 'text-')} transition-colors`}>{alert.title}</p>
+                                            <span className={`text-[9px] ${alert.color.replace('text-', 'text-')} font-bold uppercase`}>{alert.sub}</span>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-xs font-black text-red-500">R {a.amount.toLocaleString()}</p>
-                                    </div>
-                                </div>
+                                    {alert.val && <div className="text-right"><p className="text-xs md:text-xs text-sm font-black text-red-500">{alert.val}</p></div>}
+                                </motion.div>
                             ))}
-                            {/* Urgent Task Alert */}
-                            <div onClick={() => setActiveTab('Tasks')} className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-orange-500/20 hover:bg-orange-500/10 cursor-pointer transition-colors group">
-                                <div className="flex items-center gap-2">
-                                    <AlertTriangle size={14} className="text-orange-500" />
-                                    <div>
-                                        <p className="text-xs font-bold text-white group-hover:text-orange-400 transition-colors">Court Filing Deadline</p>
-                                        <span className="text-[9px] text-orange-400 font-bold uppercase">Due Tomorrow</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* FICA Compliance Alert */}
-                            <div onClick={() => setActiveTab('Clients')} className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-yellow-500/20 hover:bg-yellow-500/10 cursor-pointer transition-colors group">
-                                <div className="flex items-center gap-2">
-                                    <ShieldAlert size={14} className="text-yellow-500" />
-                                    <div>
-                                        <p className="text-xs font-bold text-white group-hover:text-yellow-400 transition-colors">FICA Verification Pending</p>
-                                        <span className="text-[9px] text-yellow-400 font-bold uppercase">2 Clients</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </GlassCard>
 
@@ -802,18 +835,22 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                             <h3 className="text-blue-400 font-bold uppercase text-xs tracking-widest flex items-center gap-2">
                                 <CalendarIcon className="w-4 h-4" /> Upcoming Events
                             </h3>
-                            <button onClick={() => setActiveTab('Calendar')} className="text-[#c9a646] hover:text-white transition-colors">
-                                <ChevronRight size={14} />
+                            <button onClick={() => setActiveTab('Calendar')} className="text-[#c9a646] hover:text-white transition-colors p-2 -mr-2">
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                         <div className="space-y-3">
                             {MOCK_DATA.calendar.filter(e => e.type === 'EVENT').slice(0, 3).map((event, i) => {
                                 const eventDate = new Date(event.start);
                                 const isToday = eventDate.toDateString() === new Date().toDateString();
-                                const isTomorrow = eventDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
-
                                 return (
-                                    <div key={i} onClick={() => onEventClick(event)} className="flex items-start gap-3 p-3 rounded-xl bg-black/40 border border-blue-500/20 hover:bg-blue-500/10 cursor-pointer transition-colors group">
+                                    <motion.div
+                                        key={i}
+                                        onClick={() => onEventClick(event)}
+                                        whileHover={isDesktop ? { x: 5, backgroundColor: 'rgba(59, 130, 246, 0.1)' } : {}}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="flex items-start gap-3 p-3 rounded-xl bg-black/40 border border-blue-500/20 cursor-pointer transition-colors group"
+                                    >
                                         <div className="flex-shrink-0 text-center">
                                             <div className="w-12 h-12 rounded-lg bg-blue-500/20 border border-blue-500/30 flex flex-col items-center justify-center">
                                                 <p className="text-[10px] font-black text-blue-400 uppercase">{eventDate.toLocaleDateString('en-US', { month: 'short' })}</p>
@@ -823,72 +860,80 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors truncate">{event.title}</p>
                                             <p className="text-[9px] text-gray-500 uppercase mt-1">
-                                                {isToday ? 'Today' : isTomorrow ? 'Tomorrow' : eventDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} • {eventDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                {eventDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                             </p>
-                                            {event.description && (
-                                                <p className="text-[9px] text-gray-400 mt-1 truncate">{event.description}</p>
-                                            )}
                                         </div>
-                                        {isToday && (
-                                            <div className="flex-shrink-0">
-                                                <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">Today</span>
-                                            </div>
-                                        )}
-                                    </div>
+                                    </motion.div>
                                 );
                             })}
                         </div>
                     </GlassCard>
-                </div>
+                </motion.div>
 
-                {/* RIGHT COLUMN - Timer, Quick Actions, Matters, Apps */}
-                <div className="space-y-6">
+                {/* RIGHT COLUMN */}
+                <motion.div className="space-y-6" variants={itemVariants}>
 
                     {/* Fee Timer Card */}
                     <GlassCard className="relative overflow-hidden bg-gradient-to-br from-black to-[#1a1a1a] border-white/10">
+                        {timerActive && (
+                            <motion.div
+                                className="absolute inset-0 border-2 border-red-500/20 rounded-xl pointer-events-none"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            />
+                        )}
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-gray-500 font-black uppercase text-xs tracking-widest">Fee Timer</h3>
                             {timerActive && <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>}
                         </div>
 
-                        <div className="text-center py-6 bg-black/40 rounded-xl border border-white/5 mb-4 shadow-inner">
-                            <span className="text-5xl font-mono font-bold text-white tracking-tighter block tabular-nums">
+                        <div className="text-center py-6 md:py-8 bg-black/40 rounded-xl border border-white/5 mb-4 shadow-inner">
+                            <span className="text-5xl md:text-6xl font-mono font-bold text-white tracking-tighter block tabular-nums">
                                 {new Date(timerSeconds * 1000).toISOString().substr(11, 8)}
                             </span>
                         </div>
 
                         <div className="space-y-3">
-                            <select value={timerMatter} onChange={e => setTimerMatter(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-gray-300 focus:border-[#c9a646] outline-none font-bold uppercase">
+                            <select value={timerMatter} onChange={e => setTimerMatter(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-lg p-3 md:p-3 p-4 text-xs md:text-xs text-sm text-gray-300 focus:border-[#c9a646] outline-none font-bold uppercase transition-all">
                                 <option value="">Select Matter...</option>
                                 {matters.map(m => <option key={m.id} value={m.ref}>{m.name}</option>)}
                             </select>
                             <div className="grid grid-cols-2 gap-3">
-                                <button onClick={toggleTimer} className={`py-3 rounded-lg font-black text-xs uppercase tracking-widest transition-all ${timerActive ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-green-600 text-white hover:bg-green-500'}`}>
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={toggleTimer}
+                                    className={`py-3 md:py-3 py-4 rounded-lg font-black text-xs md:text-xs text-sm uppercase tracking-widest transition-all ${timerActive ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-green-600 text-white hover:bg-green-500'}`}
+                                >
                                     {timerActive ? 'Stop' : 'Start'}
-                                </button>
-                                <button className="bg-white/5 hover:bg-white/10 rounded-lg font-black text-xs uppercase text-gray-400">Sync</button>
+                                </motion.button>
+                                <button className="bg-white/5 hover:bg-white/10 rounded-lg font-black text-xs md:text-xs text-sm uppercase text-gray-400">Sync</button>
                             </div>
                         </div>
                     </GlassCard>
 
-                    {/* Quick Actions (On-Page) */}
+                    {/* Quick Actions Grid */}
                     <GlassCard className="p-4">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-gray-500 font-black uppercase text-xs tracking-widest">Quick Actions</h3>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <button onClick={() => openQuickAdd('matter')} className="bg-white/5 hover:bg-[#c9a646] hover:text-black py-2 rounded text-[10px] font-bold uppercase transition-colors flex items-center justify-center gap-2 border border-white/5 group">
-                                <Briefcase size={12} className="text-[#c9a646] group-hover:text-black" /> Matter
-                            </button>
-                            <button onClick={() => openQuickAdd('event')} className="bg-white/5 hover:bg-[#c9a646] hover:text-black py-2 rounded text-[10px] font-bold uppercase transition-colors flex items-center justify-center gap-2 border border-white/5 group">
-                                <CalendarIcon size={12} className="text-[#c9a646] group-hover:text-black" /> Event
-                            </button>
-                            <button onClick={() => openQuickAdd('client')} className="bg-white/5 hover:bg-[#c9a646] hover:text-black py-2 rounded text-[10px] font-bold uppercase transition-colors flex items-center justify-center gap-2 border border-white/5 group">
-                                <UserPlus size={12} className="text-[#c9a646] group-hover:text-black" /> Client
-                            </button>
-                            <button onClick={() => openQuickAdd('time')} className="bg-white/5 hover:bg-[#c9a646] hover:text-black py-2 rounded text-[10px] font-bold uppercase transition-colors flex items-center justify-center gap-2 border border-white/5 group">
-                                <Clock size={12} className="text-[#c9a646] group-hover:text-black" /> Log Time
-                            </button>
+                            {[
+                                { label: 'Matter', icon: Briefcase, action: () => openQuickAdd('matter') },
+                                { label: 'Event', icon: CalendarIcon, action: () => openQuickAdd('event') },
+                                { label: 'Client', icon: UserPlus, action: () => openQuickAdd('client') },
+                                { label: 'Log Time', icon: Clock, action: () => openQuickAdd('time') }
+                            ].map((btn, i) => (
+                                <motion.button
+                                    key={i}
+                                    onClick={btn.action}
+                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={isDesktop ? { scale: 1.05, backgroundColor: 'rgba(201, 166, 70, 0.1)', borderColor: '#c9a646' } : {}}
+                                    className="bg-white/5 border border-white/5 py-2 md:py-2 py-3 rounded text-[10px] md:text-[10px] text-xs font-bold uppercase transition-colors flex items-center justify-center gap-2 group"
+                                >
+                                    <btn.icon size={14} className="text-[#c9a646] group-hover:text-white transition-colors" />
+                                    <span className="group-hover:text-white text-gray-300">{btn.label}</span>
+                                </motion.button>
+                            ))}
                         </div>
                     </GlassCard>
 
@@ -896,21 +941,25 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                     <GlassCard>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-gray-500 font-black uppercase text-xs tracking-widest">Active Matters</h3>
-                            <button onClick={() => setActiveTab('Matters')} className="text-[#c9a646] hover:text-white transition-colors">
-                                <ChevronRight size={14} />
+                            <button onClick={() => setActiveTab('Matters')} className="text-[#c9a646] hover:text-white transition-colors p-2 -mr-2">
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                         <div className="space-y-3">
                             {matters.slice(0, 3).map((m, i) => (
-                                <div key={i} onClick={() => onMatterClick(m)} className="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded -mx-2 transition-colors">
+                                <motion.div
+                                    key={i}
+                                    onClick={() => onMatterClick(m)}
+                                    whileHover={isDesktop ? { x: 5, backgroundColor: 'rgba(255, 255, 255, 0.05)' } : {}}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="flex items-center justify-between group cursor-pointer p-2 rounded -mx-2 transition-colors"
+                                >
                                     <div className="min-w-0">
-                                        <p className="text-xs font-bold text-white truncate group-hover:text-[#f7d774]">{m.name}</p>
+                                        <p className="text-xs md:text-xs text-sm font-bold text-white truncate group-hover:text-[#f7d774]">{m.name}</p>
                                         <p className="text-[9px] text-gray-500 uppercase">{m.ref}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${m.status === 'Urgent' ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>{m.status}</span>
-                                    </div>
-                                </div>
+                                    <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${m.status === 'Urgent' ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>{m.status}</span>
+                                </motion.div>
                             ))}
                         </div>
                     </GlassCard>
@@ -919,52 +968,38 @@ const PersonalHubPage = ({ tasks, matters, pulse, setActiveTab, openQuickAdd, ti
                     <GlassCard className="border-t-2 border-t-[#c9a646]/30">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-gray-500 font-black uppercase text-xs tracking-widest">Quick Apps</h3>
-                            <button onClick={() => setActiveTab('Apps')} className="text-[#c9a646] hover:text-white transition-colors">
-                                <ChevronRight size={14} />
+                            <button onClick={() => setActiveTab('Apps')} className="text-[#c9a646] hover:text-white transition-colors p-2 -mr-2">
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="bg-white/5 hover:bg-[#c9a646]/20 p-3 rounded border border-white/5 hover:border-[#c9a646] transition-all group">
-                                <div className="flex items-center gap-2">
-                                    <Sparkles size={16} className="text-blue-400 group-hover:text-[#c9a646]" />
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-bold text-white">Gemini AI</p>
-                                        <p className="text-[8px] text-gray-500">Active</p>
+                            {[
+                                { name: 'Gemini AI', icon: Sparkles, color: 'text-blue-400', url: 'https://gemini.google.com' },
+                                { name: 'Docs', icon: FileText, color: 'text-blue-500', url: 'https://docs.google.com' },
+                                { name: 'Drive', icon: HardDrive, color: 'text-yellow-500', url: 'https://drive.google.com' },
+                                { name: 'Calendar', icon: CalendarIcon, color: 'text-blue-500', url: 'https://calendar.google.com' }
+                            ].map((app, i) => (
+                                <motion.button
+                                    key={i}
+                                    onClick={() => window.open(app.url, '_blank')}
+                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={isDesktop ? { scale: 1.05, borderColor: '#c9a646' } : {}}
+                                    className="bg-white/5 p-3 rounded border border-white/5 transition-colors group"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <app.icon size={16} className={`${app.color} group-hover:text-[#c9a646] transition-colors`} />
+                                        <div className="text-left min-w-0">
+                                            <p className="text-[10px] font-bold text-white truncate">{app.name}</p>
+                                            <p className="text-[8px] text-gray-500">Linked</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </button>
-                            <button onClick={() => window.open('https://docs.google.com', '_blank')} className="bg-white/5 hover:bg-[#c9a646]/20 p-3 rounded border border-white/5 hover:border-[#c9a646] transition-all group">
-                                <div className="flex items-center gap-2">
-                                    <FileText size={16} className="text-blue-500 group-hover:text-[#c9a646]" />
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-bold text-white">Docs</p>
-                                        <p className="text-[8px] text-gray-500">Linked</p>
-                                    </div>
-                                </div>
-                            </button>
-                            <button onClick={() => window.open('https://drive.google.com', '_blank')} className="bg-white/5 hover:bg-[#c9a646]/20 p-3 rounded border border-white/5 hover:border-[#c9a646] transition-all group">
-                                <div className="flex items-center gap-2">
-                                    <HardDrive size={16} className="text-yellow-500 group-hover:text-[#c9a646]" />
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-bold text-white">Drive</p>
-                                        <p className="text-[8px] text-gray-500">Linked</p>
-                                    </div>
-                                </div>
-                            </button>
-                            <button onClick={() => window.open('https://calendar.google.com', '_blank')} className="bg-white/5 hover:bg-[#c9a646]/20 p-3 rounded border border-white/5 hover:border-[#c9a646] transition-all group">
-                                <div className="flex items-center gap-2">
-                                    <CalendarIcon size={16} className="text-blue-500 group-hover:text-[#c9a646]" />
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-bold text-white">Calendar</p>
-                                        <p className="text-[8px] text-gray-500">Linked</p>
-                                    </div>
-                                </div>
-                            </button>
+                                </motion.button>
+                            ))}
                         </div>
                     </GlassCard>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
@@ -5778,6 +5813,7 @@ const NotificationToast = ({ notification, onClose }) => {
 };
 
 function App() {
+    const { isMobile } = useResponsive();
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('JKM_ACTIVE_TAB_V1') || 'Personal Hub');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const connectivityStatus = 'OPTIMAL'; // 'OPTIMAL' | 'STALE' | 'OFFLINE'
@@ -6859,125 +6895,136 @@ function App() {
             <nav className="md:hidden h-20 bg-transparent pointer-events-none"></nav>
 
             <main className="pt-24 md:pt-48 pb-32 md:pb-20 px-4 md:px-8 min-h-screen">
-                {(() => {
-                    switch (activeTab) {
-                        case 'Personal Hub':
-                            return <PersonalHubPage
-                                tasks={tasks}
-                                matters={matters}
-                                pulse={MOCK_DATA.pulse}
-                                setActiveTab={setActiveTab}
-                                openQuickAdd={activeQuickAdd}
-                                timerActive={timerActive}
-                                toggleTimer={toggleTimer}
-                                timerSeconds={timerSeconds}
-                                setTimerMatter={setTimerMatter}
-                                timerMatter={timerMatter}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, x: isMobile ? 10 : 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: isMobile ? -10 : -20 }}
+                        transition={{ duration: isMobile ? 0.2 : 0.3, ease: "easeInOut" }}
+                        className="h-full"
+                    >
+                        {(() => {
+                            switch (activeTab) {
+                                case 'Personal Hub':
+                                    return <PersonalHubPage
+                                        tasks={tasks}
+                                        matters={matters}
+                                        pulse={MOCK_DATA.pulse}
+                                        setActiveTab={setActiveTab}
+                                        openQuickAdd={activeQuickAdd}
+                                        timerActive={timerActive}
+                                        toggleTimer={toggleTimer}
+                                        timerSeconds={timerSeconds}
+                                        setTimerMatter={setTimerMatter}
+                                        timerMatter={timerMatter}
 
-                                toggleTaskCompletion={toggleTaskCompletion}
-                                onTaskClick={setSelectedTask}
-                                onAlertClick={setSelectedAlert}
-                                onMatterClick={setSelectedMatter}
-                                onEventClick={setSelectedEvent}
-                            />;
-                        case 'Firm Overview': return <FirmOverviewPage tasks={tasks} matters={matters} data={MOCK_DATA} setActiveTab={setActiveTab} />;
-                        case 'Apps': return <AppsPage activeCategory={activeAppCategory} setActiveCategory={setActiveAppCategory} auditTrail={systemLogs} />;
-                        case 'Tasks': return <TasksPage tasks={tasks} toggleTaskCompletion={toggleTaskCompletion} onTaskClick={setSelectedTask} matters={matters} openQuickAdd={activeQuickAdd} setModalType={setModalType} />;
-                        case 'Clients': return <ClientsPage clients={clients} setClients={setClients} matters={matters} />;
-                        case 'Account': return <AccountPage user={currentUser} onUpdateUser={setCurrentUser} auditTrail={systemLogs} settings={settingsState} onUpdateSettings={setSettingsState} />;
-                        case 'Time': return (
-                            <TimePage
-                                timeEntries={timeEntries}
-                                setTimeEntries={setTimeEntries}
-                                matters={matters}
-                                employees={employees}
-                                timerActive={timerActive}
-                                timerSeconds={timerSeconds}
-                                setTimerActive={setTimerActive}
-                                setTimerSeconds={setTimerSeconds}
-                            />
-                        );
-                        case 'Billing': return (
-                            <BillingPage
-                                invoices={invoices}
-                                setInvoices={setInvoices}
-                                timeEntries={timeEntries}
-                                setTimeEntries={setTimeEntries}
-                                matters={matters}
-                                clients={clients}
-                            />
-                        );
-                        case 'Reports': return (
-                            <ReportsPage
-                                matters={matters}
-                                tasks={tasks}
-                                timeEntries={timeEntries}
-                                invoices={invoices}
-                                employees={employees}
-                                clients={clients}
-                                auditTrail={systemLogs}
-                            />
-                        );
-                        case 'Chat': return (
-                            <ChatPage
-                                matters={matters}
-                                chatState={chatState}
-                                setChatState={setChatState}
-                                employees={employees}
-                                billingEntries={timeEntries}
-                                tasks={tasks}
-                                clients={clients}
-                            />
-                        );
-                        case 'Client Onboarding': return (
-                            <ClientOnboardingPage />
-                        );
-                        case 'Client Portal': return (
-                            <ClientPortalPage
-                                clients={clients}
-                                matters={matters}
-                                documents={documents}
-                                invoices={invoices}
-                            />
-                        );
-                        case 'Settings': return (
-                            <SettingsPage
-                                settings={settingsState}
-                                onUpdateSettings={setSettingsState}
-                                auditTrail={systemLogs}
-                            />
-                        );
-                        case 'Matters': return (
-                            <MattersPage
-                                matters={matters}
-                                tasks={tasks}
-                                documents={documents}
-                                events={MOCK_DATA.calendar}
-                                billingEntries={timeEntries}
-                                auditTrail={systemLogs}
-                                setAuditTrail={setSystemLogs}
-                                setBillingEntries={setTimeEntries}
-                                data={MOCK_DATA}
-                                setActiveTab={setActiveTab}
-                                openQuickAdd={activeQuickAdd}
-                                toggleTaskCompletion={toggleTaskCompletion}
-                                onTaskClick={setSelectedTask}
-                                setMatters={setMatters}
-                                setTasks={setTasks}
-                                onEditTask={handleEditTask}
-                                chatState={chatState}
-                                setChatState={setChatState}
-                                initialMatterId={selectedMatter?.id}
-                                initialSubTab={selectedMatterIntent || 'Overview'}
-                            />
-                        );
-                        case 'Team': return <EmployeesPage employees={employees} setEmployees={setEmployees} tasks={tasks} />;
-                        case 'Documents': return <DocumentsPage documents={documents} setDocuments={setDocuments} matters={matters} clients={MOCK_DATA.clients} />;
-                        case 'Calendar': return <CalendarPage events={MOCK_DATA.calendar} matters={matters} onEventClick={setSelectedEvent} openQuickAdd={activeQuickAdd} />;
-                        case 'Notifications': return <NotificationsPage state={notifState} setState={setNotifState} setActiveTab={setActiveTab} onAction={handleNotificationAction} />;
-                        default: return <div className="py-20 text-center uppercase font-black text-gray-500 tracking-widest">{activeTab} Module Ready</div>;
-                    }
-                })()}
+                                        toggleTaskCompletion={toggleTaskCompletion}
+                                        onTaskClick={setSelectedTask}
+                                        onAlertClick={setSelectedAlert}
+                                        onMatterClick={setSelectedMatter}
+                                        onEventClick={setSelectedEvent}
+                                    />;
+                                case 'Firm Overview': return <FirmOverviewPage tasks={tasks} matters={matters} data={MOCK_DATA} setActiveTab={setActiveTab} />;
+                                case 'Apps': return <AppsPage activeCategory={activeAppCategory} setActiveCategory={setActiveAppCategory} auditTrail={systemLogs} />;
+                                case 'Tasks': return <TasksPage tasks={tasks} toggleTaskCompletion={toggleTaskCompletion} onTaskClick={setSelectedTask} matters={matters} openQuickAdd={activeQuickAdd} setModalType={setModalType} />;
+                                case 'Clients': return <ClientsPage clients={clients} setClients={setClients} matters={matters} />;
+                                case 'Account': return <AccountPage user={currentUser} onUpdateUser={setCurrentUser} auditTrail={systemLogs} settings={settingsState} onUpdateSettings={setSettingsState} />;
+                                case 'Time': return (
+                                    <TimePage
+                                        timeEntries={timeEntries}
+                                        setTimeEntries={setTimeEntries}
+                                        matters={matters}
+                                        employees={employees}
+                                        timerActive={timerActive}
+                                        timerSeconds={timerSeconds}
+                                        setTimerActive={setTimerActive}
+                                        setTimerSeconds={setTimerSeconds}
+                                    />
+                                );
+                                case 'Billing': return (
+                                    <BillingPage
+                                        invoices={invoices}
+                                        setInvoices={setInvoices}
+                                        timeEntries={timeEntries}
+                                        setTimeEntries={setTimeEntries}
+                                        matters={matters}
+                                        clients={clients}
+                                    />
+                                );
+                                case 'Reports': return (
+                                    <ReportsPage
+                                        matters={matters}
+                                        tasks={tasks}
+                                        timeEntries={timeEntries}
+                                        invoices={invoices}
+                                        employees={employees}
+                                        clients={clients}
+                                        auditTrail={systemLogs}
+                                    />
+                                );
+                                case 'Chat': return (
+                                    <ChatPage
+                                        matters={matters}
+                                        chatState={chatState}
+                                        setChatState={setChatState}
+                                        employees={employees}
+                                        billingEntries={timeEntries}
+                                        tasks={tasks}
+                                        clients={clients}
+                                    />
+                                );
+                                case 'Client Onboarding': return (
+                                    <ClientOnboardingPage />
+                                );
+                                case 'Client Portal': return (
+                                    <ClientPortalPage
+                                        clients={clients}
+                                        matters={matters}
+                                        documents={documents}
+                                        invoices={invoices}
+                                    />
+                                );
+                                case 'Settings': return (
+                                    <SettingsPage
+                                        settings={settingsState}
+                                        onUpdateSettings={setSettingsState}
+                                        auditTrail={systemLogs}
+                                    />
+                                );
+                                case 'Matters': return (
+                                    <MattersPage
+                                        matters={matters}
+                                        tasks={tasks}
+                                        documents={documents}
+                                        events={MOCK_DATA.calendar}
+                                        billingEntries={timeEntries}
+                                        auditTrail={systemLogs}
+                                        setAuditTrail={setSystemLogs}
+                                        setBillingEntries={setTimeEntries}
+                                        data={MOCK_DATA}
+                                        setActiveTab={setActiveTab}
+                                        openQuickAdd={activeQuickAdd}
+                                        toggleTaskCompletion={toggleTaskCompletion}
+                                        onTaskClick={setSelectedTask}
+                                        setMatters={setMatters}
+                                        setTasks={setTasks}
+                                        onEditTask={handleEditTask}
+                                        chatState={chatState}
+                                        setChatState={setChatState}
+                                        initialMatterId={selectedMatter?.id}
+                                        initialSubTab={selectedMatterIntent || 'Overview'}
+                                    />
+                                );
+                                case 'Team': return <EmployeesPage employees={employees} setEmployees={setEmployees} tasks={tasks} />;
+                                case 'Documents': return <DocumentsPage documents={documents} setDocuments={setDocuments} matters={matters} clients={MOCK_DATA.clients} />;
+                                case 'Calendar': return <CalendarPage events={MOCK_DATA.calendar} matters={matters} onEventClick={setSelectedEvent} openQuickAdd={activeQuickAdd} />;
+                                case 'Notifications': return <NotificationsPage state={notifState} setState={setNotifState} setActiveTab={setActiveTab} onAction={handleNotificationAction} />;
+                                default: return <div className="py-20 text-center uppercase font-black text-gray-500 tracking-widest">{activeTab} Module Ready</div>;
+                            }
+                        })()}
+                    </motion.div>
+                </AnimatePresence>
             </main>
 
             {/* Modals */}
