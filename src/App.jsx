@@ -58,6 +58,13 @@ const FilePreviewIcon = ({ type, size = 16 }) => {
 // --- Configuration ---
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'jkm-legal-os';
 
+// --- Utility Components ---
+const GlassCard = ({ children, className, onClick }) => (
+    <div onClick={onClick} className={`glass-card ${className || ''}`}>
+        {children}
+    </div>
+);
+
 // Temporary API Key (will be moved to Settings)
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const ACTIVE_STAFF = {
