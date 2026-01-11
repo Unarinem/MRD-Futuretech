@@ -59,6 +59,11 @@ const FilePreviewIcon = ({ type, size = 16 }) => {
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'jkm-legal-os';
 
 // --- Utility Components ---
+const GlassCard = ({ children, className = "", onClick }) => (
+    <div onClick={onClick} className={`glass-card ${className} ${onClick ? 'cursor-pointer hover:border-[#f7d774]/50 transition-colors' : ''}`}>
+        {children}
+    </div>
+);
 
 
 // Temporary API Key (will be moved to Settings)
@@ -280,11 +285,7 @@ const TaskDetailModal = ({ task, onClose, matter, onToggleCompletion, onEdit }) 
 };
 
 
-const GlassCard = ({ children, className = "", onClick }) => (
-    <div onClick={onClick} className={`glass-card ${className} ${onClick ? 'cursor-pointer hover:border-[#f7d774]/50 transition-colors' : ''}`}>
-        {children}
-    </div>
-);
+
 
 const DocumentPreviewModal = ({ doc, onClose }) => {
     if (!doc) return null;
