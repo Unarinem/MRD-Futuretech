@@ -65,33 +65,7 @@ const GlassCard = ({ children, className = "", onClick }) => (
     </div>
 );
 
-// --- Placeholder Components (to ensure build passes) ---
-const FirmOverviewPage = () => (
-    <GlassCard className="h-96 flex items-center justify-center">
-        <div className="text-center">
-            <h2 className="text-xl font-black text-gray-500 uppercase tracking-widest mb-2">Firm Overview</h2>
-            <p className="text-xs text-gray-600">Module under construction.</p>
-        </div>
-    </GlassCard>
-);
 
-const AppsPage = () => (
-    <GlassCard className="h-96 flex items-center justify-center">
-        <div className="text-center">
-            <h2 className="text-xl font-black text-gray-500 uppercase tracking-widest mb-2">Apps Registry</h2>
-            <p className="text-xs text-gray-600">Module under construction.</p>
-        </div>
-    </GlassCard>
-);
-
-const TasksPage = ({ tasks }) => (
-    <GlassCard className="h-96 flex items-center justify-center">
-        <div className="text-center">
-            <h2 className="text-xl font-black text-gray-500 uppercase tracking-widest mb-2">Task Command</h2>
-            <p className="text-xs text-gray-600">Module under construction. {tasks?.length} tasks loaded.</p>
-        </div>
-    </GlassCard>
-);
 
 
 // Temporary API Key (will be moved to Settings)
