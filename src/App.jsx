@@ -5819,6 +5819,8 @@ const NotificationToast = ({ notification, onClose }) => {
 };
 
 function App() {
+    return <div style={{ color: 'white', background: 'black', height: '100vh', padding: '50px' }}>DEBUG: App Component Mounted Successfully</div>;
+
     const { isMobile } = useResponsive();
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('JKM_ACTIVE_TAB_V1') || 'Personal Hub');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
