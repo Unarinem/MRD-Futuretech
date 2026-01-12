@@ -6096,8 +6096,7 @@ function App() {
     const [editingTask, setEditingTask] = useState(null);
     const [activeAppCategory, setActiveAppCategory] = useState('All');
 
-    // Alias for Quick Add (fixes ReferenceError)
-    const activeQuickAdd = setModalType;
+
 
     // --- CHAT SYSTEM STATE ---
     const [chatState, setChatState] = useState(() => {
